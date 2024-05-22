@@ -1,0 +1,120 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<ctype.h>
+#include<string.h>
+
+
+typedef struct stack
+{
+	int size;
+	int *a;
+	int top;
+}stack;
+
+void initial(stack *s,int size)
+{
+	s->size=size;
+	s->top=-1;
+	s->a=(int *)malloc(s->size * sizeof(char));
+	return;
+}
+char push(stack *s,char item)
+{
+		s->a[++s->top]=item;
+		return item;
+}
+char pop(stack *s)
+	{
+		int item=s->a[s->top--];
+		return item;		
+	}
+int isoperator(int inf)
+	{
+	if(inf=='*'||inf=='-'||inf=='+'||inf=='/')
+	return 1;
+	else 
+	return 0;
+	}
+int precidence(char infx)
+	{
+	switch(infx)
+	{
+	case '+':
+	case '-':
+		return 1;
+		break;
+	case '*':
+	case '/':
+		return 2;
+		break;
+	default:
+		return -9;
+	}
+	}
+char peack(stack * s1)
+	{
+	char item=s1->a[s1->top];
+	return item;
+	}
+char * infixtopostfix(stack * s1,char *infix)
+{
+	int len=strlen(infix)+1;
+	int i,j,flag=0;
+	char *postf=(char*)malloc((len)*sizeof(char)); 
+	initial(s1,len);
+	for(i=0,j=0;i<len;i++)
+	{
+	if(isalnum(infix[i]))
+		{
+		postf[j++]=infix[i];
+		}
+	else if(infix[i]=='(') 
+		{
+		push(s1,infix[i]);
+		}
+	else if(isoperator(infix[i]))
+		{
+			while(precidence(infix[i])<=precidence(peack(s1))&&s1->top > -1)
+			{
+				postf[j++]=pop(s1);
+			}
+			push(s1,infix[i]);
+		}
+	else if (infix[i]==')')
+		{
+		while(s1->top>-1&&peack(s1)!='(')
+		postf[j++]=pop(s1);
+		if(s1->top==-1&&s1->a[s1->top+1]!='(')
+		{
+		printf("INVALID EXPRESSION");
+		flag =1;
+		}
+		else
+		s1->top--;
+		}
+	else 
+		while(s1->top>-1)
+		{
+		if (peack(s1)=='(')
+        {
+		printf("INVALID EXPRESSION");
+		s1->top--;
+        flag =1;
+		}
+        else
+		postf[j++]=pop(s1);
+		}
+        
+	}
+    postf[j]='\0';
+	return  postf;
+}
+int main()
+{
+	char infix[100]="k+l-m*n+(o+p)*w/u/v*t+q";
+    stack s;
+	char* postfix =infixtopostfix(&s,infix);
+    printf("%s", postfix);
+	printf("\n");
+return 0;
+}
